@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Database
+database/*.db
+database/*.db-journal
+
+# Audio files (keep local only)
+data/movies/*.mp3
+data/movies/*.wav
+data/movies/*.m4a
+data/tv_shows/**/*.mp3
+data/tv_shows/**/*.wav
+data/tv_shows/**/*.m4a
+data/test_clips/*.mp3
+data/test_clips/*.wav
+data/test_clips/*.m4a
+data/uploads/*.mp3
+data/uploads/*.wav
+data/uploads/*.m4a
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Flask
+instance/
+.webassets-cache
+
+# Logs
+*.log

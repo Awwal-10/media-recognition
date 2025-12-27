@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recognition System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .background::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3), transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.2), transparent 50%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(10, 14, 39, 0.6);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        /* Card */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Upload area */
+        .upload-area {
+            border: 2px dashed rgba(102, 126, 234, 0.5);
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.05);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.drag-over {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.15);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.95em;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Selected file */
+        .selected-file {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .selected-file.show {
+            display: flex;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .file-icon {
+            font-size: 2em;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            color: #4caf50;
+            font-weight: 600;
+            word-break: break-all;
+            font-size: 1.05em;
+        }
+
+        /* Button */
+        .identify-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.15em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .identify-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .identify-btn:hover::before {
+            left: 100%;
+        }
+
+        .identify-btn.show {
+            display: block;
+        }
+
+        .identify-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .identify-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .identify-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        /* Result */
+        .result {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 16px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .result-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .result-header {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-items {
+            display: grid;
+            gap: 12px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+        }
+
+        .result-value {
+            color: #fff;
+            font-weight: 600;
+            text-align: right;
+            font-size: 1.05em;
+        }
+
+        .error-message {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .try-again-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .try-again-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Info box */
+        .info-box {
+            margin-top: 30px;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #ffc107;
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 30px 20px;
+            }
+
+            .upload-area {
+                padding: 40px 15px;
+            }
+
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .result-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="header">
+        <div class="logo">SOUNDWAVE</div>
+        <div class="tagline">AI-Powered Media Recognition System</div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">🎵</div>
+                <div class="upload-text">Drop your audio clip here</div>
+                <div class="upload-subtext">or click to browse • MP3, WAV, M4A • Max 16MB</div>
+            </div>
+
+            <input type="file" id="file-input" accept=".mp3,.wav,.m4a">
+
+            <div class="selected-file" id="selected-file">
+                <div class="file-icon">📎</div>
+                <div class="file-info">
+                    <div class="file-name" id="file-name"></div>
+                </div>
+            </div>
+
+            <button class="identify-btn" id="identify-btn">🔍 Identify Audio</button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Analyzing fingerprints...</div>
+            </div>
+
+            <div class="result" id="result"></div>
+
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> For optimal results, use clips with music or distinctive sound effects. Dialogue-only scenes may have lower accuracy due to the nature of audio fingerprinting technology.
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Proof-of-Concept Media Recognition System • Built with Python, Flask & Librosa
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const selectedFile = document.getElementById('selected-file');
+        const fileName = document.getElementById('file-name');
+        const identifyBtn = document.getElementById('identify-btn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+
+        let currentFile = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+
+            const validTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/x-m4a'];
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a)$/i)) {
+                alert('Please upload a valid audio file (MP3, WAV, or M4A)');
+                return;
+            }
+
+            currentFile = file;
+            fileName.textContent = file.name;
+            selectedFile.classList.add('show');
+            identifyBtn.classList.add('show');
+            result.classList.remove('show');
+        }
+
+        identifyBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            const formData = new FormData();
+            formData.append('audio_file', currentFile);
+
+            identifyBtn.disabled = true;
+            loading.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch('/identify', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loading.classList.remove('show');
+                identifyBtn.disabled = false;
+                displayResult(data);
+
+            } catch (error) {
+                loading.classList.remove('show');
+                identifyBtn.disabled = false;
+                displayError('Network error. Please try again.');
+            }
+        });
+
+        function displayResult(data) {
+            result.innerHTML = '';
+            
+            if (data.success) {
+                result.classList.add('result-success');
+                result.classList.remove('result-error');
+                
+                let typeIcon = data.type === 'movie' ? '🎬' : '📺';
+                let titleText = data.title;
+                
+                if (data.type === 'tv' && data.season && data.episode) {
+                    titleText += ` (S${String(data.season).padStart(2, '0')}E${String(data.episode).padStart(2, '0')})`;
+                }
+                
+                result.innerHTML = `
+                    <div class="result-header">
+                        <span>✅</span>
+                        <span>Match Found!</span>
+                    </div>
+                    <div class="result-items">
+                        <div class="result-item">
+                            <span class="result-label">${typeIcon} ${data.type === 'movie' ? 'Movie' : 'TV Show'}</span>
+                            <span class="result-value">${titleText}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">⏱️ Timestamp</span>
+                            <span class="result-value">${data.timestamp}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">🎯 Confidence Score</span>
+                            <span class="result-value">${data.confidence} fingerprints</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">📊 Total Matches</span>
+                            <span class="result-value">${data.total_matches}</span>
+                        </div>
+                    </div>
+                    <button class="try-again-btn" onclick="resetForm()">Analyze Another Clip</button>
+                `;
+            } else {
+                result.classList.add('result-error');
+                result.classList.remove('result-success');
+                
+                result.innerHTML = `
+                    <div class="result-header">
+                        <span>❌</span>
+                        <span>No Match Found</span>
+                    </div>
+                    <div class="error-message">${data.message || 'Could not identify this audio clip. Try a clip with more distinctive audio features like music or sound effects.'}</div>
+                    <button class="try-again-btn" onclick="resetForm()">Try Another Clip</button>
+                `;
+            }
+            
+            result.classList.add('show');
+        }
+
+        function displayError(message) {
+            result.classList.add('result-error');
+            result.classList.remove('result-success');
+            result.innerHTML = `
+                <div class="result-header">
+                    <span>❌</span>
+                    <span>Error</span>
+                </div>
+                <div class="error-message">${message}</div>
+                <button class="try-again-btn" onclick="resetForm()">Try Again</button>
+            `;
+            result.classList.add('show');
+        }
+
+        function resetForm() {
+            currentFile = null;
+            fileInput.value = '';
+            selectedFile.classList.remove('show');
+            identifyBtn.classList.remove('show');
+            result.classList.remove('show');
+        }
+    </script>
+</body>
+</html>
