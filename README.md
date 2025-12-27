@@ -6,7 +6,7 @@ A proof-of-concept media recognition system that identifies movies and TV shows 
 ![Flask](https://img.shields.io/badge/flask-3.0-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## 🎯 Project Overview
+##  Project Overview
 
 This system uses **audio fingerprinting** to identify media content from 5-10 second audio clips. It demonstrates:
 
@@ -16,7 +16,7 @@ This system uses **audio fingerprinting** to identify media content from 5-10 se
 - Time-alignment matching
 - Full-stack web development
 
-## ✨ Features
+##  Features
 
 - **Audio Fingerprinting Engine**: Generates unique fingerprints from audio using spectrogram analysis
 - **Fast Matching Algorithm**: Identifies content using time-offset alignment scoring
@@ -32,7 +32,7 @@ This system uses **audio fingerprinting** to identify media content from 5-10 se
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
 - **Design**: Glassmorphism, gradient effects, responsive layout
 
-## 🚀 How It Works
+##  How It Works
 
 ### 1. Fingerprint Generation
 ```
@@ -54,7 +54,7 @@ Query Clip → Generate Fingerprints → Search Database → Score Matches → R
 - Uses time-offset alignment to score candidates
 - Returns match with highest confidence score
 
-## 📁 Project Structure
+##  Project Structure
 ```
 media-recognition/
 ├── src/
@@ -133,7 +133,7 @@ http://localhost:5001
 python src/matcher.py data/test_clips/your_clip.mp3
 ```
 
-## 📊 Performance
+##  Performance
 
 - **Database Size**: 50,000+ fingerprints from 12 media items
 - **Match Accuracy**: ~67% on test set (4/6 successful identifications)
@@ -141,7 +141,7 @@ python src/matcher.py data/test_clips/your_clip.mp3
 - **Best Results**: Music-heavy or action sequences
 - **Limitations**: Struggles with pure dialogue scenes
 
-## 🎓 Learning Outcomes
+##  Learning Outcomes
 
 This project demonstrates understanding of:
 
@@ -151,7 +151,7 @@ This project demonstrates understanding of:
 - **Full-Stack Development**: Backend APIs, frontend UI, system integration
 - **Software Engineering**: Modular code, documentation, version control
 
-## ⚠️ Limitations & Future Improvements
+##  Limitations & Future Improvements
 
 ### Current Limitations
 - Works best with music/action audio, struggles with pure dialogue
@@ -167,11 +167,11 @@ This project demonstrates understanding of:
 - [ ] Deploy to cloud with larger dataset
 - [ ] Add user authentication and history tracking
 
-## 📝 Note on Copyright
+##  Note on Copyright
 
 This is an **educational proof-of-concept project**. Audio files are **not included** in this repository. Users must provide their own legally obtained audio for testing purposes. The system generates transformative fingerprints for identification purposes only and does not distribute copyrighted content.
 
-## 📄 License
+##  License
 
 MIT License - feel free to use this code for learning purposes.
 
@@ -182,7 +182,7 @@ MIT License - feel free to use this code for learning purposes.
 - LinkedIn: [Awwal-LinkedIn](https://www.linkedin.com/in/awwal-ahmed10/)
 - Portfolio: [Awwal-Portfolio](https://bit.ly/AwwalStudentPage)
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Audio processing powered by [librosa](https://librosa.org/)
 - Inspired by the Shazam audio fingerprinting algorithm
