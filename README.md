@@ -24,7 +24,7 @@ This system uses **audio fingerprinting** to identify media content from 5-10 se
 - **CLI Tool**: Command-line interface for batch processing and testing
 - **SQLite Database**: Efficient storage and retrieval of 50,000+ fingerprints
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Backend**: Python 3.11, Flask
 - **Audio Processing**: librosa, numpy, scipy
