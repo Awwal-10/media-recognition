@@ -189,5 +189,3 @@ MIT License - feel free to use this code for learning purposes.
 - Built as a portfolio project to demonstrate full-stack engineering skills
 
 ---
-
-**⭐ If you found this project interesting, please consider starring it!**
